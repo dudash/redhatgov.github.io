@@ -51,6 +51,32 @@ keycloak-0                                 1/1     Running           0          
 <br>
 
 <blockquote>
+<i class="fa fa-terminal"></i> Watch the keycloak-0 logs:
+</blockquote>
+
+```
+oc logs -f keycloak-0
+```
+
+<br>
+
+<blockquote>
+<i class="fa fa-terminal"></i> Wait until the admin console is running:
+</blockquote>
+
+Wait a couple of minutes.  You should eventually see something like the following:
+
+```
+17:15:19,583 INFO  [org.jboss.as] (Controller Boot Thread) WFLYSRV0060: Http management interface listening on http://127.0.0.1:9990/management
+17:15:19,584 INFO  [org.jboss.as] (Controller Boot Thread) WFLYSRV0051: Admin console listening on http://127.0.0.1:9990
+17:15:19,584 INFO  [org.jboss.as] (Controller Boot Thread) WFLYSRV0025: Keycloak 10.0.0 (WildFly Core 11.0.0.Final) started in 63396ms - Started 694 of 1000 services (708 services are lazy, passive or on-demand)
+```
+
+Stop following the logs after you see this (e.g. CTRL+C).
+
+<br>
+
+<blockquote>
 <i class="fa fa-terminal"></i> We configure via Kubernetes resources to create the realm + roles + clients & users as follows:
 </blockquote>
 
