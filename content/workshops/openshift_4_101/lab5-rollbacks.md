@@ -11,9 +11,9 @@ Once you have an app deployed in OpenShift you can take advantage of some contin
 
 
 ## A bit of configuration
-We are going to do some integration and coding with an external git repository.  For this lab we are going to use github, if you don't already have an account, [you can create one here][3].
+We are going to do some integration and coding with an external git repository.  For this lab we are going to use github, if you don't already have an account, [you can create one here][1].
 
-OK, let's fork the dc-metro-map app from **my** account into **your** github account.  Goto [https://github.com/RedHatGov/openshift-workshops][4] and look to the top right for the "Fork" button.
+OK, let's fork the dc-metro-map app from **my** account into **your** github account.  Goto [https://github.com/RedHatGov/openshift-workshops][2] and look to the top right for the "Fork" button.
 
 <img src="../images/ocp-lab-rollbacks-fork.png" width="500"><br/>
 
@@ -23,20 +23,29 @@ Github should redirect you to the newly created fork of the source code.
 
 
 ## Build Trigger / Code Change Webhook
-When using S2I there are a few different things that can be used to [trigger][1] a rebuild of your source code.  The first is a configuration change, the second is an image change, and the last (which we are covering here) is a webhook.  A webhook is basically your git source code repository telling OpenShift that the code we care about has changed.  Let's set that up for our project now to see it in action.
+When using S2I there are a few different things that can be used to [trigger] a rebuild of your source code.  The first is a configuration change, the second is an image change, and the last (which we are covering here) is a webhook.  A webhook is basically your git source code repository telling OpenShift that the code we care about has changed.  Let's set that up for our project now to see it in action.
 
 Jump back to your OpenShift web console and let's add the webapp to our project.  You should know how to do this from previous lab work, but this time point to *your* github URL for the source code.  If you need a refresher expand the box below.
 
 {{< panel_group >}}
 {{% panel "Web Console Steps" %}}
 
+
+### Web Console access
+
+<pre>
+{{< urishortfqdn "https://" "console-openshift-console.apps" >}}
+</pre>
+
 <blockquote>
 Click the "Add to Project" button
 </blockquote>
-<img src="../images/ocp-addToProjectButton.png" width="70"><br/>
+<img src="../images/ocp-addToProjectButton.png" width="400"><br/>
+<br>
 <blockquote>
-Select the "From Git" icon, and click on the "Node.js" builder image.
+Select the "From Git" icon
 </blockquote>
+
 
 Make sure that you replace <b>YOUR_ACCOUNT</b> with your GitHub user ID. Click on the "Show Advanced Git Options" expander to fill in the "Context Dir" field:
 
@@ -46,18 +55,22 @@ Make sure that you replace <b>YOUR_ACCOUNT</b> with your GitHub user ID. Click o
 <tr><td><b>Context Dir</b></td><td>/dc-metro-map</td></tr>
 </table>
 </p>
+<br>
 
 <blockquote>
-Select version <b>[10-SCL]</b> and then fill out the rest of the fields, as shown:
+Select Node.js
 </blockquote>
 
 <p>
 <table>
-<tr><td><b>Application</b></td><td>Create Application</td></tr>
 <tr><td><b>Application Name</b></td><td>dc-metro-map</td></tr>
 <tr><td><b>Name</b></td><td>dc-metro-map</td></tr>
 </table>
 </p>
+
+<blockquote>
+Select "Deployment Configuration"
+</blockquote>
 
 <blockquote>
 When you are done, scroll to the bottom and click 'Create'
@@ -71,12 +84,18 @@ The node.js builder template creates a number of resources for you, but what we 
 {{< panel_group >}}
 {{% panel "CLI Steps" %}}
 
+### Terminal access
+
+<pre>
+{{< urishortfqdn "https://" "console-openshift-console.apps" "/terminal" >}}
+</pre>
+
 <blockquote>
 <i class="fa fa-terminal"></i> Goto the terminal and type the following:
 </blockquote>
 
 ```bash
-$ oc get bc/dc-metro-map -o yaml | grep generic-webhook
+$ oc get bc/dc-metro-map -o yaml | grep github-webhook
 ```
 
 <blockquote>
@@ -84,7 +103,7 @@ $ oc get bc/dc-metro-map -o yaml | grep generic-webhook
 </blockquote>
 
 ```bash
-name: dc-metro-map-generic-webhook-secret
+name: dc-metro-map-github-webhook-secret
 ```
 
 <blockquote>
@@ -92,7 +111,9 @@ name: dc-metro-map-generic-webhook-secret
 </blockquote>
 
 ```bash
-$ SECRET=`oc get secrets dc-metro-map-generic-webhook-secret -o yaml | grep -i key | sed 's/^.*: //' | base64 -d ; echo`
+$ curl -o jq -L https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
+$ chmod 0755 jq
+$ SECRET=`oc get secrets dc-metro-map-github-webhook-secret -o json | ./jq ".data.WebHookSecretKey" | base64 -di`
 ```
 
 <blockquote>
@@ -100,7 +121,7 @@ $ SECRET=`oc get secrets dc-metro-map-generic-webhook-secret -o yaml | grep -i k
 </blockquote>
 
 ```bash
-$ oc describe bc/dc-metro-map | grep "Webhook Generic" -A 1 | sed "s/<secret>/${SECRET}/"
+$ oc describe bc/dc-metro-map | awk '/github$/{print $2}' | sed "s/<secret>/${SECRET}/"
 ```
 
 <blockquote>
@@ -108,8 +129,7 @@ $ oc describe bc/dc-metro-map | grep "Webhook Generic" -A 1 | sed "s/<secret>/${
 </blockquote>
 
 ```bash
-Webhook Generic:
-        URL:            https://api.alexocp43.redhatgov.io:6443/apis/build.openshift.io/v1/namespaces/cicd-1/buildconfigs/dc-metro-map/webhooks/1234abcd5678efgh/generic
+https://api.alexocp43.redhatgov.io:6443/apis/build.openshift.io/v1/namespaces/cicd-1/buildconfigs/dc-metro-map/webhooks/1234abcd5678efgh/github
 ```
 
 <blockquote>
@@ -119,6 +139,13 @@ Copy the "Webhook Generic" URL to the clipboard, so that we can use it in GitHub
 {{% /panel %}}
 
 {{% panel "Web Console Steps" %}}
+
+
+### Web Console access
+
+<pre>
+{{< urishortfqdn "https://" "console-openshift-console.apps" >}}
+</pre>
         
 <blockquote>
 in "Administrator" mode, click on "Builds" and then click on "Build Configs"
@@ -171,7 +198,10 @@ Click the "Webhooks" link
 Click the "Add webhook" button
 </blockquote>
 <blockquote>
-Paste in the URL you copied
+In the Payload URL field, paste the URL that you copied.
+</blockquote>
+<blockquote>
+Change content type to "application/json"
 </blockquote>
 <blockquote>
 Disable SSL verification by clicking the button
@@ -201,23 +231,43 @@ In addition to setting up triggers for rebuilding code, we can setup a different
 
 
 ## Rollbacks
-Well, what if something isn't quite right with the latest version of our app?  Let's say some feature we thought was ready for the world really isn't - and we didn't figure that out until after we deployed it.  No problem, we can roll it back with the click of a button.  Let's check that out:
+Well, what if something isn't quite right with the latest version of our app?  Let's say some feature we thought was ready for the world really isn't - and we didn't figure that out until after we deployed it.  No problem, we can roll it back with the click of a button.
+
+{{% alert info %}}
+This will not work in today's workshop, as we have not yet made a second deployment.
+{{% /alert %}}
+
 
 {{< panel_group >}}
 {{% panel "CLI Steps" %}}
+
+### Terminal access
+
+<pre>
+{{< urishortfqdn "https://" "console-openshift-console.apps" "/terminal" >}}
+</pre>
 
 <blockquote>
 <i class="fa fa-terminal"></i> Goto the terminal and type the following:
 </blockquote>
 
 ```bash
-$ oc rollout undo deployment/dc-metro-map
+$ oc rollout undo dc/dc-metro-map
 $ oc get pods -w
 ```
+
+
 
 {{% /panel %}}
 
 {{% panel "Web Console Steps" %}}
+
+
+### Web Console access
+
+<pre>
+{{< urishortfqdn "https://" "console-openshift-console.apps" >}}
+</pre>
 
 <blockquote>
 Click on "Builds" and then click on "Builds"
@@ -252,14 +302,7 @@ You can integrate your CI/CD tools to do rollbacks with the REST API. See the Ro
 # Summary
 In this lab we saw how you can configure a source code repository to trigger builds with webhooks.  This webhook could come from Github, Jenkins, Travis-CI, or any tool capable of sending a URL POST.  Keep in mind that there are other types of build triggers you can setup.  For example: if a new version of the upstream RHEL image changes.  We also inspected our deployment history and did a rollback of our running deployment to one based on an older image with the click of a button.
 
-# More Information
-[Triggers][2]</br>
-[Rollbacks With the REST API][5]
-
-[1]: https://docs.openshift.com/enterprise/3.1/dev_guide/builds.html#build-triggers
-[2]: https://docs.openshift.com/enterprise/3.1/dev_guide/deployments.html#triggers
-[3]: https://github.com/join?source=header-home
-[4]: https://github.com/RedHatGov/openshift-workshops.git
-[5]: https://docs.openshift.com/enterprise/3.1/rest_api/openshift_v1.html#create-a-deploymentconfigrollback-2
+[1]: https://github.com/join?source=header-home
+[2]: https://github.com/RedHatGov/openshift-workshops.git
 
 {{< importPartial "footer/footer.html" >}}

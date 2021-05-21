@@ -11,6 +11,12 @@ When implementing continuous delivery for your software one very useful techniqu
 ## Before starting
 Before we get started with the Blue/Green deployment lab, lets clean up some of the projects from the previous lab. 
 
+### Terminal access
+
+<pre>
+{{< urishortfqdn "https://" "console-openshift-console.apps" "/terminal" >}}
+</pre>
+
 ``` bash
 $ oc delete all -l app=jenkins-ephemeral
 $ oc delete project cicd-{{< span "userid" "YOUR#" >}}
@@ -24,8 +30,8 @@ You should be comfortable deploying an app at this point, but here are the steps
 > <i class="fa fa-terminal"></i> Goto the terminal and type these commands:
 
 ``` bash
-$ oc new-project bluegreen-{{<span "userid" "YOUR#" >}}
-$ oc new-app --name=green https://github.com/your-github-uid-goes-here/openshift-workshops --context-dir=dc-metro-map
+$ oc new-project bluegreen-{{<span2 "userid" "YOUR#" >}}
+$ oc new-app --name=green https://github.com/your-github-uid-goes-here/openshift-workshops --context-dir=dc-metro-map --as-deployment-config=true
 $ oc expose service green
 ```
 
@@ -43,7 +49,7 @@ Use the same commands to deploy this new version of the app, but this time name 
 > <i class="fa fa-terminal"></i> Goto the terminal and type these commands:
 
 ``` bash
-$ oc new-app --name=blue https://github.com/your-github-uid-goes-here/openshift-workshops --context-dir=dc-metro-map
+$ oc new-app --name=blue https://github.com/your-github-uid-goes-here/openshift-workshops --context-dir=dc-metro-map --as-deployment-config=true
 ```
 
 Wait for the "blue" application to become avialable before proceeding.
@@ -54,6 +60,12 @@ Now that we are satisfied with our change we can do the Green/Blue switch.  With
 
 {{< panel_group >}}
 {{% panel "CLI Steps" %}}
+
+### Terminal access
+
+<pre>
+{{< urishortfqdn "https://" "console-openshift-console.apps" "/terminal" >}}
+</pre>
       
 <blockquote>
 <i class="fa fa-terminal"></i> Goto the terminal and type the following:
@@ -66,8 +78,6 @@ $ oc edit route green
 This will bring up the Route configuration yaml. Edit the element "spec:". On the "to:" "name:" line, change its value from "green" to "blue":
 
 ```bash
-spec:
-  host: green-bluegreen-1.apps.alexocp43.redhatgov.io
   port:
     targetPort: 8080-tcp
   to:
@@ -81,11 +91,14 @@ spec:
 
 {{% panel "Web Console Steps" %}}
 
->Navigate to the Routes view from the left-hand menu:
 
-<img src="../images/ocp-lab-bluegreen-navtoroutes.png" width="400"><br/>
+### Web Console access
 
->In your Routes overview, click on the "green" route:
+<pre>
+{{< urishortfqdn "https://" "console-openshift-console.apps" >}}
+</pre>
+
+> As "Administrator", in the "bluegreen-{{< span "userid" "YOUR#" >}}" project, navigate to "Routes", and select "green"
 
 <img src="../images/ocp-lab-bluegreen-routesoverview.png" width="900">
 <br/>

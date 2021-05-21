@@ -12,22 +12,17 @@ In this lab we will explore some of the common activities undertaken by develope
 ## Setup
 From the previous lab you should have the DC Metro Maps web app running in OpenShift.  
 
-{{% alert warning %}}
-Only if you don't already have it running, add it with the following steps.
-{{% /alert %}}
-
-> <i class="fa fa-terminal"></i> Goto the terminal and type these commands:
-
-```bash
-$ oc new-app --name=dc-metro-map https://github.com/RedHatGov/openshift-workshops.git --context-dir=dc-metro-map
-$ oc expose service dc-metro-map
-```
-
 ## See the app in action and inspect some details
 Unlike in previous versions of OpenShift, there is no more ambiguity or confusion about where the app came from.  OpenShift provides traceability for your running deployment, back to the container image, and the registry that it came from. Additionally, images built by OpenShift are traceable back to the exact [branch](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/about-branches) and [commit](https://help.github.com/en/github/getting-started-with-github/github-glossary#commit). Let's take a look at that!
 
 {{< panel_group >}}
 {{% panel "CLI Steps" %}}
+
+### Terminal access
+
+<pre>
+{{< urishortfqdn "https://" "console-openshift-console.apps" "/terminal" >}}
+</pre>
 
 <blockquote>
 <i class="fa fa-terminal"></i> Goto the terminal and type the following:
@@ -93,10 +88,16 @@ https://github.com/RedHatGov/redhatgov.github.io/commit/2d5078cc5bbdf3cf63c5ab15
 
 {{% panel "Web Console Steps" %}}
 
+### Web Console access
+
+<pre>
+{{< urishortfqdn "https://" "console-openshift-console.apps" >}}
+</pre>
+
 <blockquote>
 Change modes to "Administrator", and then click on "Workloads", and "Deployment Configs".
 </blockquote>
-<img src="../images/ocp-lab-devman-dc.png" width="500"><br/>
+<img src="../images/ocp-lab-devman-dc.png" width="1000"><br/>
 
 <blockquote>
 Click on "dc-metro-map", under "Name", and check out the details of the deployment
@@ -150,6 +151,12 @@ In the S2I lab we looked at a build log to inspect the process of turning source
 {{< panel_group >}}
 {{% panel "CLI Steps" %}}
 
+### Terminal access
+
+<pre>
+{{< urishortfqdn "https://" "console-openshift-console.apps" "/terminal" >}}
+</pre>
+
 <blockquote>
 <i class="fa fa-terminal"></i> Goto the terminal and type the following:
 </blockquote>
@@ -177,6 +184,13 @@ You will see in the output details of your app starting up and any status messag
 {{% /panel %}}
 
 {{% panel "Web Console Steps" %}}
+
+
+### Web Console access
+
+<pre>
+{{< urishortfqdn "https://" "console-openshift-console.apps" >}}
+</pre>
 
 <blockquote>
 Click on "Workloads" and then click on "Pods"
@@ -212,6 +226,12 @@ Whether it's a database name or a configuration variable, most applications make
 {{< panel_group >}}
 {{% panel "CLI Steps" %}}
 
+### Terminal access
+
+<pre>
+{{< urishortfqdn "https://" "console-openshift-console.apps" "/terminal" >}}
+</pre>
+
 Let's have a little fun.  The app has some easter eggs that get triggered when certain environment variables are set to 'true'.
 <blockquote>
 <i class="fa fa-terminal"></i> Goto the terminal and type the following:
@@ -239,8 +259,15 @@ Due to the deployment config strategy being set to "Rolling" and the "ConfigChan
 
 {{% panel "Web Console Steps" %}}
 
+
+### Web Console access
+
+<pre>
+{{< urishortfqdn "https://" "console-openshift-console.apps" >}}
+</pre>
+
 <blockquote>
-Click on "Builds", and last, click on "Build Configs", in the left-side menu.
+Click on "Workloads", and last, click on "Deployment Configs", in the left-side menu.
 </blockquote>
 This is going to show basic details for all build configurations in this project
 
@@ -249,21 +276,15 @@ Click the "dc-metro-map" build config.
 </blockquote>
 
 <blockquote>
-Click the "Environment" tab next to the "Builds" tab .
+Click the "Environment" tab next to the "Pods" tab .
 </blockquote>
-<img src="../images/ocp-lab-devman-buildconfigdetails-config.png" width="600"><br/>
+<img src="../images/ocp-lab-devman-deploymentconfigdetails-config.png" width="600"><br/>
 This opens up a tab with the environment variables for this deployment config.
 
 <blockquote>
 Add an environment variable with the name BEERME and a value of 'true'
 </blockquote>
 <img src="../images/ocp-lab-devman-deployconfigdetails-populated.png" width="600">
-<br/>
-
-<blockquote>
-Click "Save".  Next, kick off a new build, by selecting "Start Build", from the "Actions" menu, to the right.
-</blockquote>
-<img src="../images/ocp-lab-devman-startBuild.png" width="200">
 <br/>
 
 <blockquote>
@@ -276,13 +297,13 @@ If you are quick enough, you will see a new pod spin up, and the old pod spin do
 {{% /panel %}}
 {{< /panel_group >}}
 
-With the new environment variables set the app should look like this in your web browser (with beers instead of busses):
+With the new environment variables set the app should look like this in your web browser (with beers<img src="../images/beers.png" width=25> instead of buses <img src="../images/buses.png" width=25>):
 
 <img src="../images/ocp-lab-devman-beerme.png" width="900"><br/>
 
 
 ## What about passwords and private keys?
-Environment variables are great, but sometimes we don't want sensitive data exposed in the environment.  We will get into using **secrets** later when you do the lab: Keep it Secret, Keep it Safe
+Environment variables are great, but sometimes we don't want sensitive data exposed in the environment.  This is covered in depth in the OpenShift Security Workshop. Need to know more right now? Ask your facilitator to get you more info!
 
 
 ## Getting into a pod
@@ -290,6 +311,12 @@ There are situations when you might want to jump into a running pod, and OpenShi
 
 {{< panel_group >}}
 {{% panel "CLI Steps" %}}
+
+### Terminal access
+
+<pre>
+{{< urishortfqdn "https://" "console-openshift-console.apps" "/terminal" >}}
+</pre>
 
 <blockquote>
 <i class="fa fa-terminal"></i> Goto the terminal and type the following:
@@ -302,7 +329,7 @@ $ oc get pods
 Find the pod name for your Running pod
 
 ```bash
-$ oc exec -it [POD NAME] /bin/bash
+$ oc exec -it [POD NAME] -- /bin/bash
 ```
  
 You are now interactively attached to the container in your pod.  Let's look for the environment variables we set:
@@ -320,6 +347,13 @@ $ exit
 {{% /panel %}}
 
 {{% panel "Web Console Steps" %}}
+
+
+### Web Console access
+
+<pre>
+{{< urishortfqdn "https://" "console-openshift-console.apps" >}}
+</pre>
 
 <blockquote>
 Click on "Workloads" and then click on "Pods"
@@ -349,18 +383,25 @@ That should return **BEERME=true**, matching the value that we set in the deploy
 {{< /panel_group >}}
 
 ## Good work, let's clean this up
+
+### Terminal access
+
+<pre>
+{{< urishortfqdn "https://" "console-openshift-console.apps" "/terminal" >}}
+</pre>
+
 > <i class="fa fa-terminal"></i> Let's clean up all this to get ready for the next lab:
 
 ```bash
 $ oc delete all -l app=dc-metro-map
-$ oc delete secrets dc-metro-map-generic-webhook-secret dc-metro-map-github-webhook-secret    
+$ oc delete secrets dc-metro-map-generic-webhook-secret dc-metro-map-github-webhook-secret 2>/dev/null
 ```
   
 # Summary
 In this lab you've seen how to trace running software back to its roots, how to see details on the pods running your software, how to update deployment configurations, how to inspect logs files, how to set environment variables consistently across your environment, and how to interactively attach to running containers.  All these things should come in handy for any developer working in an OpenShift platform.
 
-To dig deeper into the details behind the steps you performed in this lab, check out the OpenShift [developer's guide][1].
+To dig deeper into the details behind the steps you performed in this lab, check out the OpenShift documentation[1].
 
-[1]: https://docs.openshift.com/container-platform/3.4/dev_guide/index.html
+[1]: https://docs.openshift.com/container-platform/latest/welcome/index.html 
 
 {{< importPartial "footer/footer.html" >}}

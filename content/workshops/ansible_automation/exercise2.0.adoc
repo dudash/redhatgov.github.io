@@ -33,14 +33,14 @@ Download the latest Ansible Tower package
 
 [source,bash]
 ----
-curl -O https://releases.ansible.com/ansible-tower/setup/ansible-tower-setup-latest.tar.gz
+curl -O https://releases.ansible.com/ansible-tower/setup/ansible-tower-setup-3.7.3-1.tar.gz
 ----
 
 === Step 3: Untar and unzip the package file
 
 [source,bash]
 ----
-tar xvfz /tmp/ansible-tower-setup-latest.tar.gz
+tar xvfz /tmp/ansible-tower-setup-3.7.3-1.tar.gz
 ----
 
 === Step 4: Change directories
@@ -63,7 +63,7 @@ vim inventory
 
 === Step 6: Identify variables
 
-Fill a few variables out in an inventory file: `admin_password`, `pg_password`, `rabbitmq_password`
+Fill out a couple variables in the inventory file, *admin_password* and *pg_password*:
 
 [subs=+quotes]
 ----
@@ -83,13 +83,10 @@ pg_username='awx'
 pg_password=*'ansibleWS'*
 pg_sslmode='prefer'  # set to 'verify-full' for client-side enforced SSL
 
-rabbitmq_username=tower
-rabbitmq_password=*'ansibleWS'*
-rabbitmq_cookie=cookiemonster
-
 # Isolated Tower nodes automatically generate an RSA key for authentication;
 # To disable this behavior, set this value to false
 # isolated_key_generation=true
+
 
 # SSL-related variables
 
@@ -100,18 +97,10 @@ rabbitmq_cookie=cookiemonster
 # web_server_ssl_cert=/path/to/tower.cert
 # web_server_ssl_key=/path/to/tower.key
 
-# Use SSL for RabbitMQ inter-node communication.  Because RabbitMQ never
-# communicates outside the cluster, a private CA and certificates will be
-# created, and do not need to be supplied.
-# rabbitmq_use_ssl=False
-
 # Server-side SSL settings for PostgreSQL (when we are installing it).
 # postgres_use_ssl=False
 # postgres_ssl_cert=/path/to/pgsql.crt
 # postgres_ssl_key=/path/to/pgsql.key
-
-~                                 
-
 ----
 
 === Step 7: Run setup
